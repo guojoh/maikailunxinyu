@@ -211,13 +211,13 @@ body {
   display: inline-block;
   background: var(--accent);
   color: #fff;
-  min-width: 28px; height: 28px;
+  height: 28px;
   line-height: 28px;
   text-align: center;
-  border-radius: 50%;
-  font-size: 0.8em;
+  border-radius: 14px;
+  font-size: 0.78em;
   margin-right: 8px;
-  padding: 0 4px;
+  padding: 0 8px;
 }
 .card-dates {
   font-size: 0.78em;
@@ -397,6 +397,39 @@ body {
   .original-text { font-size: 1.05em; }
 }
 
+/* ── 暗色模式 ── */
+body.dark {
+  --paper: #1e1b18;
+  --ink: #d4c8b0;
+  --ink-light: #a89880;
+  --accent: #d4706a;
+  --accent-light: #8b5050;
+  --card-bg: #2a2520;
+  --border: #4a3f35;
+  --tag-bg: #38322a;
+  --shadow: rgba(0,0,0,0.3);
+}
+body.dark .sidebar {
+  background: linear-gradient(180deg, #2a2520 0%, #1e1b18 100%);
+}
+body.dark .fn-popup {
+  background: #2a2520;
+  border-color: #4a3f35;
+}
+
+.light-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.88em;
+  color: var(--ink-light);
+  user-select: none;
+}
+.light-toggle input { display: none; }
+.light-toggle .toggle-text { line-height: 1; }
+
 .footer {
   text-align: center;
   padding: 40px 20px 30px;
@@ -431,6 +464,11 @@ body {
   <label class="fn-toggle">
     <input type="checkbox" id="fnToggle" checked onchange="filter()">
     <span class="fn-check"></span> 显示脚注
+  </label>
+
+  <label class="light-toggle">
+    <input type="checkbox" id="lightToggle" onchange="toggleLight()">
+    <span class="toggle-text" id="lightLabel">🌙 关灯</span>
   </label>
 
   <div class="char-list" id="charList">
@@ -487,6 +525,21 @@ let currentSort = 'order';
 function getFirstSentence(text) {
   const m = text.match(/^(.+?)[，。：？！；]/);
   return m ? m[1] : text.slice(0, 20);
+}
+
+// ── 数字转中文 ──
+function toChineseNum(n) {
+  const chars = ['零','一','二','三','四','五','六','七','八','九','十'];
+  if (n <= 10) return chars[n];
+  if (n < 20) return '十' + (n % 10 === 0 ? '' : chars[n % 10]);
+  if (n < 100) return chars[Math.floor(n / 10)] + '十' + (n % 10 === 0 ? '' : chars[n % 10]);
+  var h = Math.floor(n / 100);
+  var r = n % 100;
+  var tail = '';
+  if (r === 0) tail = '';
+  else if (r < 10) tail = '〇' + chars[r];
+  else tail = toChineseNum(r);
+  return chars[h] + '百' + tail;
 }
 
 // ── 插入脚注标记 ──
@@ -602,7 +655,7 @@ function render(entries) {
 
     card.innerHTML = `
       <div class="card-header">
-        <span class="card-title"><span class="num">${e.id}</span>${title}</span>
+        <span class="card-title"><span class="num">${toChineseNum(e.id)}</span>${title}</span>
         <span class="card-dates">${e.eventDate || ''}</span>
       </div>
       ${showOrig ? `<div class="original-text">${highlight(origHTML)}${transToggle}</div>` : ''}
@@ -692,6 +745,13 @@ function setSort(sort, btn) {
 document.querySelector('.main').addEventListener('click', () => {
   document.querySelector('.sidebar').classList.remove('open');
 });
+
+// ── 暗色模式切换 ──
+function toggleLight() {
+  var isDark = document.getElementById('lightToggle').checked;
+  document.body.classList.toggle('dark', isDark);
+  document.getElementById('lightLabel').textContent = isDark ? '☀️ 开灯' : '🌙 关灯';
+}
 
 // ── 初始渲染 ──
 render(DATA.entries);
