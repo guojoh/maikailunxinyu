@@ -56,9 +56,20 @@ body {
   color: var(--accent);
   letter-spacing: 0.15em;
   text-align: center;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 2px solid var(--accent-light);
 }
+
+.back-link {
+  display: block;
+  text-align: center;
+  font-size: 0.78em;
+  color: #a09080;
+  text-decoration: none;
+  padding-bottom: 12px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--accent); }
 .search-box {
   width: 100%;
   padding: 10px 14px;
@@ -223,6 +234,13 @@ body {
   font-size: 0.78em;
   color: #a09080;
   white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s;
+  border-bottom: 1px dashed transparent;
+}
+.card-dates:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent-light);
 }
 
 .original-text {
@@ -447,7 +465,8 @@ body.dark .fn-popup {
 
 <!-- ═══ 侧边栏 ═══ -->
 <aside class="sidebar">
-  <h2>🏮 迈凯伦新语</h2>
+  <h2>迈凯伦新语</h2>
+  <a href="https://johnnymoon.tech" class="back-link" title="返回主站">回到 装萌柯基™日记</a>
 
   <input type="text" class="search-box" id="searchInput" placeholder="🔍 搜索原文或译文…" oninput="filter()">
 
@@ -654,10 +673,11 @@ function render(entries) {
       : '';
 
     const eraDate = e.mkEra || e.snEra || e.eventDate || '';
+    const gregDate = e.eventDate || '';
     card.innerHTML = `
       <div class="card-header">
         <span class="card-title"><span class="num">${toChineseNum(e.id)}</span>${title}</span>
-        <span class="card-dates">${eraDate}</span>
+        <span class="card-dates" data-era="${escapeHTML(eraDate)}" data-greg="${escapeHTML(gregDate)}" onclick="var d=this;if(d.textContent===d.dataset.era){d.textContent=d.dataset.greg;d.classList.add('greg')}else{d.textContent=d.dataset.era;d.classList.remove('greg')}" title="点击切换纪元/公历">${eraDate}</span>
       </div>
       ${showOrig ? `<div class="original-text">${highlight(origHTML)}${transToggle}</div>` : ''}
       ${showTrans ? `<div class="translation-text ${showOrig ? 'collapsed' : ''}">${highlight(e.translation)}</div>` : ''}
